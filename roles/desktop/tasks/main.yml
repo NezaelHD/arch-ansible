@@ -23,23 +23,8 @@
       - brightnessctl
       - network-manager-applet
       - blueman
-      - wdisplays
       - swaylock
     state: present
-
-- name: Activer le service pipewire (audio)
-  become: yes
-  systemd:
-    name: pipewire
-    enabled: yes
-    state: started
-
-- name: Activer le service pipewire-pulse (compatibilité pulseaudio)
-  become: yes
-  systemd:
-    name: pipewire-pulse
-    enabled: yes
-    state: started
 
 - name: Activer le service Bluetooth
   become: yes

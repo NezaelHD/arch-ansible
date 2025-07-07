@@ -8,16 +8,18 @@
       - git
     state: present
 
-- name: Définir zsh comme shell par défaut pour l'utilisateur courant
+- name: Définir zsh comme shell par défaut pour l'utilisateur specifie
   user:
-    name: "{{ ansible_user_id }}"
+    name: "{{ ansible_user }}"
     shell: /bin/zsh
 
 - name: Installer oh-my-zsh
   become: no
   environment:
-    ZSH: "{{ ansible_env.HOME }}/.oh-my-zsh"
+    HOME: "/home/{{ ansible_user }}"
+    USER: "{{ ansible_user }}"
   shell: |
     sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)" "" --unattended
   args:
-    creates: "{{ ansible_env.HOME }}/.oh-my-zsh"
+    chdir: "/home/{{ ansible_user }}"
+    creates: "/home/{{ ansible_user }}/.oh-my-zsh"

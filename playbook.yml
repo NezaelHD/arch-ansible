@@ -2,11 +2,15 @@
 - name: Configuration de base Arch Linux
   hosts: localhost
   become: yes
+  vars:
+    ansible_user: nezael
+  collections:
+    - kewlfft.aur
   roles:
     - base
     - shell
     - desktop
     - nvidia
-    # - gaming
-    # - development
-    # - dotfiles
+    - gaming
+   # - development
+   # - dotfiles

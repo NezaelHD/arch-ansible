@@ -37,7 +37,7 @@
     state: started
 
 - name: Installer yay (AUR helper)
-  become: yes
+  become: no
   block:
     - name: Vérifier si yay est déjà installé
       stat:
@@ -47,13 +47,14 @@
     - name: Cloner yay depuis AUR
       git:
         repo: https://aur.archlinux.org/yay.git
-        dest: /tmp/yay
+        dest: "/home/{{ ansible_user }}/yay"
+        update: yes
       when: not yay_installed.stat.exists
 
     - name: Compiler et installer yay
-      become: yes
+      become: no
       shell: |
-        cd /tmp/yay
+        cd /home/{{ ansible_user }}/yay
         makepkg -si --noconfirm
       args:
         creates: /usr/bin/yay
@@ -61,6 +62,6 @@
 
     - name: Nettoyer le dossier yay
       file:
-        path: /tmp/yay
+        path: "/home/{{ ansible_user }}/yay"
         state: absent
       when: yay_installed.stat.exists == False
