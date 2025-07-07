@@ -1,0 +1,66 @@
+---
+- name: Mettre à jour le système
+  become: yes
+  pacman:
+    update_cache: yes
+    upgrade: yes
+
+- name: Installer les paquets de base
+  become: yes
+  pacman:
+    name:
+      - base-devel
+      - git
+      - curl
+      - htop
+      - ranger
+      - bat
+      - fzf
+      - zsh
+      - wget
+      - unzip
+      - alacritty
+      - rofi
+      - networkmanager
+      - openssh
+      - sudo
+      - which
+      - python
+      - python-pip
+    state: present
+
+- name: Activer NetworkManager
+  become: yes
+  systemd:
+    name: NetworkManager
+    enabled: yes
+    state: started
+
+- name: Installer yay (AUR helper)
+  become: yes
+  block:
+    - name: Vérifier si yay est déjà installé
+      stat:
+        path: /usr/bin/yay
+      register: yay_installed
+
+    - name: Cloner yay depuis AUR
+      git:
+        repo: https://aur.archlinux.org/yay.git
+        dest: /tmp/yay
+      when: not yay_installed.stat.exists
+
+    - name: Compiler et installer yay
+      become: yes
+      shell: |
+        cd /tmp/yay
+        makepkg -si --noconfirm
+      args:
+        creates: /usr/bin/yay
+      when: not yay_installed.stat.exists
+
+    - name: Nettoyer le dossier yay
+      file:
+        path: /tmp/yay
+        state: absent
+      when: yay_installed.stat.exists == False

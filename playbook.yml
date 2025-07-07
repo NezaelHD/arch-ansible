@@ -1,0 +1,12 @@
+---
+- name: Configuration de base Arch Linux
+  hosts: localhost
+  become: yes
+  roles:
+    - base
+    - shell
+    - desktop
+    - nvidia
+    # - gaming
+    # - development
+    # - dotfiles

@@ -1,0 +1,40 @@
+---
+- name: Installer les drivers propriétaires Nvidia et outils associés
+  become: yes
+  pacman:
+    name:
+      - nvidia
+      - nvidia-utils
+      - nvidia-settings
+      - egl-wayland
+      - libva
+      - libva-nvidia-driver
+    state: present
+
+- name: Générer le fichier de configuration des modules pour charger nvidia au boot
+  become: yes
+  copy:
+    dest: /etc/modules-load.d/nvidia.conf
+    content: |
+      nvidia
+      nvidia_modeset
+      nvidia_uvm
+      nvidia_drm
+
+- name: Activer le mode DRM pour Wayland (nvidia-drm.modeset=1)
+  become: yes
+  lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_CMDLINE_LINUX="(.*)"'
+    line: 'GRUB_CMDLINE_LINUX="\1 nvidia-drm.modeset=1"'
+    backrefs: yes
+
+- name: Régénérer la configuration de grub
+  become: yes
+  shell: grub-mkconfig -o /boot/grub/grub.cfg
+
+- name: S'assurer que le module nvidia-drm est bien chargé
+  become: yes
+  shell: |
+    modprobe nvidia-drm
+  ignore_errors: yes

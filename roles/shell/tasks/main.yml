@@ -1,0 +1,23 @@
+---
+- name: Installer zsh et utilitaires
+  become: yes
+  pacman:
+    name:
+      - zsh
+      - wget
+      - git
+    state: present
+
+- name: Définir zsh comme shell par défaut pour l'utilisateur courant
+  user:
+    name: "{{ ansible_user_id }}"
+    shell: /bin/zsh
+
+- name: Installer oh-my-zsh
+  become: no
+  environment:
+    ZSH: "{{ ansible_env.HOME }}/.oh-my-zsh"
+  shell: |
+    sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)" "" --unattended
+  args:
+    creates: "{{ ansible_env.HOME }}/.oh-my-zsh"

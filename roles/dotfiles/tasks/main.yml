@@ -1,0 +1,54 @@
+---
+# - name: Cloner le dépôt de dotfiles (à activer quand tu auras un repo)
+#   git:
+#     repo: "https://github.com/ton-utilisateur/tes-dotfiles.git"
+#     dest: "{{ ansible_env.HOME }}/dotfiles"
+#     version: main
+#     update: yes
+
+# - name: Déployer le .zshrc (exemple)
+#   copy:
+#     src: "{{ ansible_env.HOME }}/dotfiles/.zshrc"
+#     dest: "{{ ansible_env.HOME }}/.zshrc"
+#     owner: "{{ ansible_user_id }}"
+#     mode: '0644'
+
+# - name: Déployer la config niri (exemple)
+#   copy:
+#     src: "{{ ansible_env.HOME }}/dotfiles/.config/niri/"
+#     dest: "{{ ansible_env.HOME }}/.config/niri/"
+#     owner: "{{ ansible_user_id }}"
+#     mode: '0755'
+#     remote_src: yes
+
+# - name: Déployer la config waybar (exemple)
+#   copy:
+#     src: "{{ ansible_env.HOME }}/dotfiles/.config/waybar/"
+#     dest: "{{ ansible_env.HOME }}/.config/waybar/"
+#     owner: "{{ ansible_user_id }}"
+#     mode: '0755'
+#     remote_src: yes
+
+# - name: Déployer la config alacritty (exemple)
+#   copy:
+#     src: "{{ ansible_env.HOME }}/dotfiles/.config/alacritty/"
+#     dest: "{{ ansible_env.HOME }}/.config/alacritty/"
+#     owner: "{{ ansible_user_id }}"
+#     mode: '0755'
+#     remote_src: yes
+
+# - name: Déployer la config rofi (exemple)
+#   copy:
+#     src: "{{ ansible_env.HOME }}/dotfiles/.config/rofi/"
+#     dest: "{{ ansible_env.HOME }}/.config/rofi/"
+#     owner: "{{ ansible_user_id }}"
+#     mode: '0755'
+#     remote_src: yes
+
+# - name: Déployer la config PhpStorm (exemple)
+#   copy:
+#     src: "{{ ansible_env.HOME }}/dotfiles/.config/JetBrains/PhpStorm*/"
+#     dest: "{{ ansible_env.HOME }}/.config/JetBrains/PhpStorm*/"
+#     owner: "{{ ansible_user_id }}"
+#     mode: '0755'
+#     remote_src: yes

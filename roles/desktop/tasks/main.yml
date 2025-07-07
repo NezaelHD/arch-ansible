@@ -1,0 +1,49 @@
+---
+- name: Installer les paquets nécessaires pour Wayland et le desktop minimal
+  become: yes
+  pacman:
+    name:
+      - niri
+      - waybar
+      - alacritty
+      - rofi
+      - xdg-desktop-portal
+      - xdg-desktop-portal-wlr
+      - wl-clipboard
+      - grim
+      - slurp
+      - swaybg
+      - qt5-wayland
+      - qt6-wayland
+      - noto-fonts
+      - ttf-jetbrains-mono
+      - ttf-font-awesome
+      - pavucontrol
+      - playerctl
+      - brightnessctl
+      - network-manager-applet
+      - blueman
+      - wdisplays
+      - swaylock
+    state: present
+
+- name: Activer le service pipewire (audio)
+  become: yes
+  systemd:
+    name: pipewire
+    enabled: yes
+    state: started
+
+- name: Activer le service pipewire-pulse (compatibilité pulseaudio)
+  become: yes
+  systemd:
+    name: pipewire-pulse
+    enabled: yes
+    state: started
+
+- name: Activer le service Bluetooth
+  become: yes
+  systemd:
+    name: bluetooth
+    enabled: yes
+    state: started
