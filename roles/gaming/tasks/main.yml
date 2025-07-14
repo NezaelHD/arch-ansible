@@ -1,4 +1,25 @@
 ---
+- name: Activer le depot multilib dans pacman.conf
+  become: yes
+  ansible.builtin.replace:
+    path: /etc/pacman.conf
+    regexp: '^#?\s*\[multilib\]'
+    replace: '[multilib]'
+  notify: Update pacman cache
+
+- name: Decommenter la ligne include du depot multilib
+  become: yes
+  ansible.builtin.replace:
+    path: /etc/pacman.conf
+    regexp: '^#?\s*Include = /etc/pacman.d/mirrorlist'
+    replace: 'Include = /etc/pacman.d/mirrorlist'
+  notify: Update pacman cache
+
+- name: Mettre a jour la liste des paquets (pacamn -Sy)
+  become: yes
+  ansible.builtin.command: pacman -Sy
+  when: false
+
 - name: Installer Steam
   become: yes
   pacman:
@@ -18,16 +39,16 @@
     state: present
 
 - name: Installer ProtonUp-Qt (gestionnaire de versions Proton)
-  become: yes
-  pacman:
+  become: no
+  kewlfft.aur.aur:
     name: protonup-qt
-    state: present
+    use: yay
 
 - name: Installer Heroic Games Launcher (Epic, GOG, Amazon)
-  become: yes
-  pacman:
+  become: no
+  kewlfft.aur.aur:
     name: heroic-games-launcher-bin
-    state: present
+    use: yay
 
 - name: Installer quelques dépendances utiles pour le gaming
   become: yes

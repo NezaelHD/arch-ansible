@@ -1,0 +1,4 @@
+---
+- name: Update pacman cache
+  become: yes
+  ansible.builtin.command: pacman -Sy

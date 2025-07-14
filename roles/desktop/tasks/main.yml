@@ -24,6 +24,7 @@
       - network-manager-applet
       - blueman
       - swaylock
+      - fuzzel
     state: present
 
 - name: Activer le service Bluetooth
@@ -32,3 +33,57 @@
     name: bluetooth
     enabled: yes
     state: started
+- name: Installer greetd et greetd-tuigreet
+  become: yes
+  pacman:
+    name:
+      - greetd
+      - greetd-tuigreet
+    state: present
+
+- name: Activer greetd
+  become: yes
+  systemd:
+    name: greetd
+    enabled: yes
+    state: started
+
+- name: Configurer greetd pour lancer niri via tuigreet
+  become: yes
+  copy:
+    dest: /etc/greetd/config.toml
+    content: |
+      [terminal]
+      vt = 1
+
+      [default_session]
+      command = "tuigreet --cmd niri"
+      user = "greeter"
+
+- name: Creer le dossier de config niri
+  file:
+    path: "/home/{{ ansible_user }}/.config/niri"
+    state: directory
+    mode: '0755'
+  become: false
+
+- name: Creer le script d'autostart pour niri
+  copy:
+    dest: "/home/{{ ansible_user }}/.config/niri/autostart.sh"
+    content: |
+      #!bin/sh
+      waybar &
+      swaylock &
+    mode: '0755'
+  become: false
+
+- name: Ajouter un autostart a la config niri
+  copy:
+    dest: "/home/{{ ansible_user }}/.config/config.toml"
+    content: |
+      [keyboard]
+      layout = "fr"
+
+      [startup]
+      command = "/home/{{ ansible_user }}/.config/niri/autostart.sh"
+  become: false

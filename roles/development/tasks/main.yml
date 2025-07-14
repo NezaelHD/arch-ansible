@@ -1,4 +1,26 @@
 ---
+- name: installer fuse-overlayfs
+  become: yes
+  pacman:
+    name: fuse-overlayfs
+    state: present
+
+- name: Installer le JRE jetbrains
+  become: false
+  kewlfft.aur.aur:
+    name: phpstorm-jre
+    use: yay
+
+- name: Charger les modules kernel necessaires pour Docker
+  become: yes
+  modprobe:
+    name: "{{ item }}"
+  loop:
+    - overlay
+    - br_netfilter
+    - ip_tables
+    - nf_nat
+
 - name: Installer Docker et Docker Compose
   become: yes
   pacman:
@@ -25,13 +47,16 @@
   kewlfft.aur.aur:
     name: phpstorm
     use: yay
+  become: false
 
 - name: Installer Beekeeper Studio depuis l'AUR
   kewlfft.aur.aur:
     name: beekeeper-studio-bin
     use: yay
+  become: false
 
 - name: Installer Brave depuis l'AUR
   kewlfft.aur.aur:
     name: brave-bin
     use: yay
+  become: false
