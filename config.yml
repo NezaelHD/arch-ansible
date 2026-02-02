@@ -1,0 +1,176 @@
+---
+# ============================================
+# Arch Linux Workstation Configuration
+# ============================================
+# This file contains all configuration for your development workstation.
+# All features are ENABLED by default. Set to false to disable.
+
+# ============================================
+# System Configuration
+# ============================================
+update: true
+swapfile_path: /swapfile
+swapfile_size: 8G
+
+# ============================================
+# Desktop Environment
+# ============================================
+# Niri (Wayland) is used instead of GNOME
+install_gnome: false
+install_xorg: false
+install_niri: true
+
+# ============================================
+# GPU Drivers
+# ============================================
+# Options: "amd", "nvidia", "none"
+# Set to "none" if using Intel integrated graphics or no dedicated GPU
+gpu_type: "amd"  # Change to "nvidia" for NVIDIA cards
+
+# Legacy variables (deprecated, use gpu_type instead)
+install_amd_gpu: "{{ gpu_type == 'amd' }}"
+install_nvidia_gpu: "{{ gpu_type == 'nvidia' }}"
+
+# ============================================
+# Base System Packages
+# ============================================
+base_packages:
+  - base
+  - base-devel
+  - linux
+  - linux-firmware
+  - sudo
+  - dhcpcd
+  - netctl
+  - networkmanager
+  - openssh
+  - nano
+  - pipewire
+  - man-db
+  - man-pages
+  - git
+  - wget
+  - reflector
+
+# ============================================
+# Fonts
+# ============================================
+font_packages:
+  - ttf-ubuntu-font-family
+  - noto-fonts
+  - noto-fonts-emoji
+  - ttf-dejavu
+  - ttf-roboto
+  - adobe-source-han-sans-otc-fonts
+  - ttf-jetbrains-mono  # Code font with ligatures
+  - ttf-fira-code       # Popular code font
+  - ttf-hack            # Terminal font
+
+# ============================================
+# Development Tools
+# ============================================
+dev_packages:
+  - python
+  - python-pip
+  - nodejs
+  - npm
+  - rust
+  - jre
+  - jdk
+  - go
+  - yaak-bin           # API client (Postman alternative)
+  - freeze             # Code screenshot tool
+  - htop
+  - btop
+
+# ============================================
+# Navigateurs
+# ============================================
+browsers:
+  - brave-bin          # Default browser
+
+# ============================================
+# Communication
+# ============================================
+communication_apps:
+  - slack-desktop
+  - teams-for-linux
+
+# ============================================
+# Other Applications
+# ============================================
+other_packages:
+  - linux-headers
+  - bash-completion
+  - mpv
+  - mpv-mpris
+  - aria2
+  - yay
+  - pass
+  - stow
+  - spotify
+  - ntfs-3g
+  - gallery-dl
+  - neofetch
+  - tmux
+  - cpupower
+  - turbostat
+  - acpi
+  - bc
+  - update-grub
+  - p7zip
+  - radeontop
+  - xclip
+
+# ============================================
+# System Services
+# ============================================
+services_list:
+  - sshd
+  - NetworkManager
+  - reflector
+
+# ============================================
+# Docker Configuration
+# ============================================
+install_docker: true
+docker_users:
+  - "{{ ansible_user_id }}"  # ⚠️ CHANGE THIS to your username if needed
+
+docker_daemon_options:
+  storage-driver: "overlay2"
+  log-driver: "json-file"
+  log-opts:
+    max-size: "10m"
+    max-file: "3"
+
+# ============================================
+# JetBrains Toolbox
+# ============================================
+install_jetbrains: true
+# PhpStorm and DataGrip will be installed via Toolbox after first launch
+
+# ============================================
+# Dotfiles (Optional)
+# ============================================
+install_dotfiles: false  # Set to true and configure below
+dotfiles_repo: "https://github.com/YOUR_USERNAME/dotfiles.git"
+dotfiles_repo_version: main
+dotfiles_repo_local_destination: "~/dotfiles"
+dotfiles_files:
+  - .bashrc
+  - .zshrc
+  - .gitconfig
+  - .vimrc
+  - .tmux.conf
+
+# ============================================
+# Niri Configuration
+# ============================================
+niri_keyboard_layout: "fr"
+niri_gaps: 8
+
+# ============================================
+# Default Browser
+# ============================================
+default_browser: "brave-browser.desktop"

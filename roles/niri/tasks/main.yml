@@ -1,0 +1,195 @@
+---
+# Installation de Niri et environnement Wayland
+
+- name: Install Wayland base packages
+  become: true
+  community.general.pacman:
+    name:
+      - wayland
+      - wayland-protocols
+      - xorg-xwayland  # Pour compatibilité apps X11
+    state: present
+
+- name: Install Niri compositor and environment
+  become: true
+  kewlfft.aur.aur:
+    name: "{{ niri_packages }}"
+    use: yay
+    state: present
+  when: niri_packages is defined
+
+- name: Create Niri config directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/niri"
+    state: directory
+    mode: '0755'
+  become: false
+
+- name: Check if Niri config exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.config/niri/config.kdl"
+  register: niri_config_stat
+  become: false
+
+- name: Create default Niri config if not exists
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/.config/niri/config.kdl"
+    content: |
+      // Configuration Niri - Personnalisée
+      // Documentation: https://github.com/YaLTeR/niri
+
+      input {
+          keyboard {
+              xkb {
+                  layout "fr"
+              }
+          }
+
+          touchpad {
+              tap
+              natural-scroll
+          }
+      }
+
+      output {
+          scale 1.0
+      }
+
+      layout {
+          gaps 8
+          center-focused-column "never"
+      }
+
+      binds {
+          Mod+Return { spawn "alacritty"; }
+          Mod+D { spawn "fuzzel"; }
+          Mod+Q { close-window; }
+          Mod+H { focus-column-left; }
+          Mod+L { focus-column-right; }
+          Mod+J { focus-window-down; }
+          Mod+K { focus-window-up; }
+          Mod+Shift+H { move-column-left; }
+          Mod+Shift+L { move-column-right; }
+          Mod+Shift+J { move-window-down; }
+          Mod+Shift+K { move-window-up; }
+          Mod+F { maximize-column; }
+          Mod+Shift+F { fullscreen-window; }
+          Mod+Shift+E { quit; }
+
+          // Screenshots
+          Print { spawn "grim" "-g" "$(slurp)" "-" "|" "wl-copy"; }
+      }
+
+      spawn-at-startup "waybar"
+      spawn-at-startup "mako"
+      spawn-at-startup "sway-bg" "-i" "~/.config/niri/wallpaper.jpg" "-m" "fill"
+      spawn-at-startup "swayidle"
+    mode: '0644'
+  when: not niri_config_stat.stat.exists
+  become: false
+
+- name: Create Waybar config directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/waybar"
+    state: directory
+    mode: '0755'
+  become: false
+
+- name: Create default Waybar config
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/.config/waybar/config"
+    content: |
+      {
+          "layer": "top",
+          "position": "top",
+          "height": 30,
+          "modules-left": ["clock", "tray"],
+          "modules-center": [],
+          "modules-right": ["network", "pulseaudio", "battery"],
+          "clock": {
+              "format": "{:%H:%M - %d/%m/%Y}"
+          },
+          "battery": {
+              "format": "{capacity}% {icon}",
+              "format-icons": ["", "", "", "", ""]
+          },
+          "network": {
+              "format-wifi": "{essid} ",
+              "format-ethernet": "Ethernet ",
+              "format-disconnected": "Disconnected "
+          },
+          "pulseaudio": {
+              "format": "{volume}% {icon}",
+              "format-muted": "",
+              "format-icons": {
+                  "default": ["", ""]
+              }
+          }
+      }
+    mode: '0644'
+  become: false
+
+- name: Create Fuzzel config directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/fuzzel"
+    state: directory
+    mode: '0755'
+  become: false
+
+- name: Create Fuzzel config
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/.config/fuzzel/fuzzel.ini"
+    content: |
+      [main]
+      terminal=alacritty
+      layer=overlay
+
+      [colors]
+      background=1e1e2eff
+      text=cdd6f4ff
+      match=f38ba8ff
+      selection=585b70ff
+      selection-text=cdd6f4ff
+      selection-match=f38ba8ff
+      border=b4befeff
+    mode: '0644'
+  become: false
+
+- name: Create Mako config directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/mako"
+    state: directory
+    mode: '0755'
+  become: false
+
+- name: Create Mako config
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/.config/mako/config"
+    content: |
+      # Configuration Mako
+      background-color=#1e1e2e
+      text-color=#cdd6f4
+      border-color=#b4befe
+      border-size=2
+      border-radius=5
+      default-timeout=5000
+      ignore-timeout=1
+    mode: '0644'
+  become: false
+
+- name: Display Niri installation message
+  ansible.builtin.debug:
+    msg: |
+      Niri a été installé avec succès !
+
+      Pour démarrer Niri :
+      1. Depuis un TTY : tapez 'niri'
+      2. Via un display manager : sélectionnez 'Niri' dans la liste des sessions
+
+      Raccourcis clavier par défaut :
+      - Mod+Return : Terminal (Alacritty)
+      - Mod+D : Lanceur d'applications (Fuzzel)
+      - Mod+Q : Fermer fenêtre
+      - Print : Screenshot
+
+      Configuration : ~/.config/niri/config.kdl

@@ -1,0 +1,20 @@
+---
+# Installation des applications de communication
+
+- name: Install communication applications from AUR
+  become: true
+  kewlfft.aur.aur:
+    name:
+      - slack-desktop
+      - teams-for-linux
+    use: yay
+    state: present
+
+- name: Display communication apps installation message
+  ansible.builtin.debug:
+    msg: |
+      Applications de communication installées :
+      - Slack Desktop
+      - Teams for Linux
+
+      Lancez-les depuis votre lanceur d'applications (Fuzzel : Mod+D)

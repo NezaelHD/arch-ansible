@@ -1,0 +1,222 @@
+---
+# ============================================
+# Arch Linux Development Workstation Setup
+# ============================================
+# Complete setup with Niri Wayland compositor
+# All features enabled by default in config.yml
+#
+# Usage: ansible-playbook -i inventory main.yml -K
+# Tags: Use --tags to install specific components
+#       Use --skip-tags to exclude components
+
+- name: Configure Arch Linux development workstation
+  hosts: all
+  gather_facts: true
+
+  vars_files:
+    - config.yml
+
+  pre_tasks:
+    - name: Validate Arch Linux system
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.distribution == 'Archlinux'
+        fail_msg: "This playbook is designed for Arch Linux only"
+      tags: always
+
+    - name: Update package cache
+      become: true
+      community.general.pacman:
+        update_cache: true
+      changed_when: false
+      tags: always
+
+  tasks:
+    # ===== System Base =====
+    - name: Install base packages
+      become: true
+      community.general.pacman:
+        name: "{{ base_packages }}"
+        state: present
+      tags: ['base', 'packages']
+
+    - name: Configure swap
+      ansible.builtin.import_tasks: tasks/swap.yml
+      become: true
+      tags: ['swap', 'system']
+
+    - name: Setup Chaotic-AUR repository
+      ansible.builtin.import_tasks: tasks/chaotic-aur.yml
+      become: true
+      tags: ['aur', 'repository']
+
+    # ===== GPU Drivers =====
+    - name: Install AMD GPU drivers
+      ansible.builtin.import_tasks: tasks/amdgpu.yml
+      become: true
+      tags: ['gpu', 'amd']
+      when: gpu_type | default('amd') == 'amd'
+
+    - name: Install NVIDIA GPU drivers
+      ansible.builtin.import_tasks: tasks/nvidia-gpu.yml
+      become: true
+      tags: ['gpu', 'nvidia']
+      when: gpu_type | default('amd') == 'nvidia'
+
+    # ===== Fonts =====
+    - name: Install fonts
+      become: true
+      community.general.pacman:
+        name: "{{ font_packages }}"
+        state: present
+      tags: ['fonts']
+
+    # ===== Browsers =====
+    - name: Install Brave browser
+      ansible.builtin.import_tasks: tasks/brave-browser.yml
+      become: true
+      tags: ['brave', 'browser', 'apps']
+
+    - name: Install Firefox
+      become: true
+      community.general.pacman:
+        name: firefox
+        state: present
+      tags: ['firefox', 'browser', 'apps']
+
+    # ===== Development Tools =====
+    - name: Install development packages
+      become: true
+      kewlfft.aur.aur:
+        name: "{{ dev_packages }}"
+        use: yay
+        state: present
+      tags: ['dev', 'packages']
+
+    # ===== Communication Apps =====
+    - name: Install communication applications
+      ansible.builtin.import_tasks: tasks/communication-apps.yml
+      become: true
+      tags: ['communication', 'apps']
+
+    # ===== Other Packages =====
+    - name: Install other packages
+      become: true
+      kewlfft.aur.aur:
+        name: "{{ other_packages }}"
+        use: yay
+        state: present
+      tags: ['packages', 'apps']
+
+    # ===== System Services =====
+    - name: Enable system services
+      become: true
+      ansible.builtin.service:
+        name: "{{ item }}"
+        enabled: true
+      loop: "{{ services_list }}"
+      tags: ['services']
+
+  roles:
+    # ===== Niri Wayland Compositor =====
+    - role: niri
+      become: true
+      tags: ['niri', 'wayland', 'desktop']
+      when: install_niri | default(true)
+
+    # ===== Docker =====
+    - role: docker
+      become: true
+      tags: ['docker', 'containers']
+      when: install_docker | default(true)
+
+    # ===== JetBrains Toolbox =====
+    - role: jetbrains
+      become: false
+      tags: ['jetbrains', 'ide', 'dev']
+      when: install_jetbrains | default(true)
+
+    # ===== Git (from source - optional) =====
+    - role: git
+      become: true
+      tags: ['git', 'vcs']
+      when: git_install_from_source | default(false)
+
+    # ===== Dotfiles =====
+    - role: dotfiles
+      become: false
+      tags: ['dotfiles', 'config']
+      when:
+        - install_dotfiles | default(false)
+        - dotfiles_repo is defined
+        - dotfiles_repo != "https://github.com/YOUR_USERNAME/dotfiles.git"
+
+  post_tasks:
+    - name: Upgrade all packages
+      become: true
+      kewlfft.aur.aur:
+        upgrade: true
+        use: yay
+      tags: ['upgrade', 'update']
+
+    - name: Display installation summary
+      ansible.builtin.debug:
+        msg: |
+          ========================================
+          🎉 Installation Complete!
+          ========================================
+
+          🎨 Desktop Environment:
+          - Niri (Wayland compositor)
+          - Alacritty (terminal)
+          - Waybar (status bar)
+          - Fuzzel (launcher: Mod+D)
+
+          🛠️ Development Tools:
+          - JetBrains Toolbox (launch to install PhpStorm/DataGrip)
+          - Docker + Docker Compose
+          - Yaak (API client)
+          - Freeze (code screenshots)
+          - Python, Node.js, Rust, Go
+
+          🌐 Browsers:
+          - Brave (default)
+          - Firefox
+
+          💬 Communication:
+          - Slack Desktop
+          - Teams for Linux
+
+          📊 Monitoring:
+          - htop / btop
+
+          ========================================
+          Next Steps:
+          ========================================
+          1. Reboot your system
+          2. Start Niri (type 'niri' in TTY or select in display manager)
+          3. Launch JetBrains Toolbox (Mod+D → jetbrains)
+          4. Install PhpStorm and DataGrip
+          5. Configure Brave with your extensions
+
+          Niri Shortcuts:
+          - Mod+Return : Terminal
+          - Mod+D : Launcher
+          - Mod+Q : Close window
+          - Print : Screenshot
+
+          Config: ~/.config/niri/config.kdl
+          ========================================
+      tags: always
+
+  handlers:
+    - name: restart docker
+      become: true
+      ansible.builtin.systemd:
+        name: docker
+        state: restarted
+
+    - name: regenerate initramfs
+      become: true
+      ansible.builtin.command: mkinitcpio -P
+      changed_when: true

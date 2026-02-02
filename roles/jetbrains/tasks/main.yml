@@ -1,0 +1,87 @@
+---
+# Installation de JetBrains Toolbox pour gérer PhpStorm, DataGrip, etc.
+
+- name: Check if JetBrains Toolbox is already installed
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.local/share/JetBrains/Toolbox/bin/jetbrains-toolbox"
+  register: jetbrains_toolbox_stat
+  become: false
+
+- name: Install JetBrains Toolbox
+  when: not jetbrains_toolbox_stat.stat.exists
+  become: false
+  block:
+    - name: Create temporary directory for Toolbox download
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: jetbrains
+      register: jetbrains_temp_dir
+
+    - name: Download JetBrains Toolbox
+      ansible.builtin.get_url:
+        url: "https://download.jetbrains.com/toolbox/jetbrains-toolbox-2.1.3.18901.tar.gz"
+        dest: "{{ jetbrains_temp_dir.path }}/jetbrains-toolbox.tar.gz"
+        mode: '0644'
+      register: toolbox_download
+
+    - name: Extract JetBrains Toolbox
+      ansible.builtin.unarchive:
+        src: "{{ jetbrains_temp_dir.path }}/jetbrains-toolbox.tar.gz"
+        dest: "{{ jetbrains_temp_dir.path }}"
+        remote_src: true
+
+    - name: Find Toolbox binary
+      ansible.builtin.find:
+        paths: "{{ jetbrains_temp_dir.path }}"
+        patterns: "jetbrains-toolbox"
+        recurse: true
+        file_type: file
+      register: toolbox_binary
+
+    - name: Create JetBrains directory
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.local/share/JetBrains/Toolbox/bin"
+        state: directory
+        mode: '0755'
+
+    - name: Copy Toolbox binary to local directory
+      ansible.builtin.copy:
+        src: "{{ toolbox_binary.files[0].path }}"
+        dest: "{{ ansible_env.HOME }}/.local/share/JetBrains/Toolbox/bin/jetbrains-toolbox"
+        mode: '0755'
+        remote_src: true
+
+    - name: Create desktop entry for JetBrains Toolbox
+      ansible.builtin.copy:
+        dest: "{{ ansible_env.HOME }}/.local/share/applications/jetbrains-toolbox.desktop"
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Type=Application
+          Name=JetBrains Toolbox
+          Icon=jetbrains-toolbox
+          Exec="{{ ansible_env.HOME }}/.local/share/JetBrains/Toolbox/bin/jetbrains-toolbox"
+          Comment=Manage your JetBrains IDEs
+          Categories=Development;IDE;
+          Terminal=false
+          StartupWMClass=jetbrains-toolbox
+        mode: '0644'
+
+    - name: Clean up temporary directory
+      ansible.builtin.file:
+        path: "{{ jetbrains_temp_dir.path }}"
+        state: absent
+
+- name: Display JetBrains Toolbox installation message
+  ansible.builtin.debug:
+    msg: |
+      JetBrains Toolbox a été installé avec succès !
+
+      Pour l'utiliser :
+      1. Lancez 'jetbrains-toolbox' depuis le lanceur d'applications
+      2. Connectez-vous avec votre compte JetBrains
+      3. Installez PhpStorm et DataGrip depuis l'interface Toolbox
+
+      Emplacement : {{ ansible_env.HOME }}/.local/share/JetBrains/Toolbox/
+
+      Note: Les IDEs seront installés dans ~/.local/share/JetBrains/Toolbox/apps/

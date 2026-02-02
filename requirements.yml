@@ -1,0 +1,19 @@
+---
+# Ansible Collections Requirements
+# Install with: ansible-galaxy install -r requirements.yml
+
+collections:
+  # Community General Collection - Core modules for Arch Linux
+  # Version: 12.1.0+ (tested with ansible-core 2.17+)
+  # Docs: https://docs.ansible.com/ansible/latest/collections/community/general/
+  - name: community.general
+    version: ">=12.0.0"
+
+  # AUR (Arch User Repository) Module
+  # Version: 0.13.0+ (latest as of 2026-02-02)
+  # Docs: https://github.com/kewlfft/ansible-aur
+  - name: kewlfft.aur
+    version: ">=0.13.0"
+
+roles:
+  # No external roles required - using local roles in roles/

@@ -1,0 +1,45 @@
+---
+# Niri Wayland Compositor Role - Default Variables
+
+# Enable/disable Niri installation
+niri_enabled: true
+
+# Niri and Wayland packages
+niri_packages:
+  - niri
+  - wayland
+  - wayland-protocols
+  - xorg-xwayland  # X11 compatibility
+  - alacritty
+  - waybar
+  - fuzzel
+  - mako
+  - swaylock
+  - sway-bg
+  - swayidle
+  - plasma-polkit-agent
+  - nautilus
+  - xdg-desktop-portal-gtk
+  - xdg-desktop-portal-gnome
+  - gnome-keyring
+  - grim
+  - slurp
+  - wl-clipboard
+
+# Create default configs
+niri_create_default_config: true
+niri_create_waybar_config: true
+niri_create_fuzzel_config: true
+niri_create_mako_config: true
+
+# Niri configuration
+niri_keyboard_layout: "fr"
+niri_gaps: 8
+niri_mod_key: "Mod"  # Super/Windows key
+
+# Autostart applications
+niri_autostart:
+  - waybar
+  - mako
+  - "sway-bg -i ~/.config/niri/wallpaper.jpg -m fill"
+  - swayidle

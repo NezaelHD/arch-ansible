@@ -1,0 +1,80 @@
+---
+# NVIDIA GPU Drivers Installation for Arch Linux
+
+- name: Install NVIDIA proprietary drivers
+  become: true
+  community.general.pacman:
+    name:
+      - nvidia                    # NVIDIA drivers for latest kernel
+      - nvidia-utils              # NVIDIA utilities
+      - lib32-nvidia-utils        # 32-bit support
+      - nvidia-settings           # NVIDIA control panel
+      - opencl-nvidia             # OpenCL support
+      - libvdpau                  # VDPAU video acceleration
+      - libva-nvidia-driver       # VA-API support
+    state: present
+  tags: ['nvidia', 'gpu']
+
+- name: Install additional NVIDIA packages
+  become: true
+  community.general.pacman:
+    name:
+      - vulkan-icd-loader         # Vulkan support
+      - lib32-vulkan-icd-loader   # 32-bit Vulkan
+      - egl-wayland               # EGL Wayland support for Niri
+    state: present
+  tags: ['nvidia', 'gpu']
+
+- name: Enable nvidia-drm modeset
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/modprobe.d/nvidia.conf
+    line: "options nvidia-drm modeset=1"
+    create: true
+    mode: '0644'
+  notify: regenerate initramfs
+  tags: ['nvidia', 'gpu']
+
+- name: Add NVIDIA modules to mkinitcpio
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/mkinitcpio.conf
+    regexp: '^MODULES='
+    line: 'MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)'
+    backup: true
+  notify: regenerate initramfs
+  tags: ['nvidia', 'gpu']
+
+- name: Create Xorg configuration for NVIDIA
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/X11/xorg.conf.d/20-nvidia.conf
+    content: |
+      Section "Device"
+          Identifier "NVIDIA Card"
+          Driver "nvidia"
+          VendorName "NVIDIA Corporation"
+          Option "NoLogo" "true"
+      EndSection
+    mode: '0644'
+  when: install_xorg | default(false)
+  tags: ['nvidia', 'gpu']
+
+- name: Display NVIDIA installation message
+  ansible.builtin.debug:
+    msg: |
+      NVIDIA drivers installed successfully!
+
+      Important notes:
+      1. Reboot required for drivers to take effect
+      2. For Wayland/Niri: nvidia-drm modeset enabled
+      3. Check installation: nvidia-smi
+
+      Useful commands:
+      - nvidia-smi          : GPU status and monitoring
+      - nvidia-settings     : NVIDIA control panel (X11 only)
+
+      Environment variables for Wayland (already set if using Niri):
+      - __GLX_VENDOR_LIBRARY_NAME=nvidia
+      - GBM_BACKEND=nvidia-drm
+  tags: ['nvidia', 'gpu']

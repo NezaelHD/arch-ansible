@@ -1,0 +1,54 @@
+---
+# Installation de Brave et configuration comme navigateur par défaut
+
+- name: Install Brave browser from AUR
+  become: true
+  kewlfft.aur.aur:
+    name: brave-bin
+    use: yay
+    state: present
+
+- name: Check if xdg-utils is installed
+  community.general.pacman:
+    name: xdg-utils
+    state: present
+  become: true
+
+- name: Set Brave as default browser
+  ansible.builtin.command: xdg-settings set default-web-browser brave-browser.desktop
+  register: xdg_result
+  changed_when: xdg_result.rc == 0
+  failed_when: false
+  become: false
+
+- name: Create mimeapps.list directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config"
+    state: directory
+    mode: '0755'
+  become: false
+
+- name: Set Brave as default in mimeapps.list
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME }}/.config/mimeapps.list"
+    create: true
+    mode: '0644'
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Brave Browser"
+    block: |
+      [Default Applications]
+      text/html=brave-browser.desktop
+      x-scheme-handler/http=brave-browser.desktop
+      x-scheme-handler/https=brave-browser.desktop
+      x-scheme-handler/about=brave-browser.desktop
+      x-scheme-handler/unknown=brave-browser.desktop
+  become: false
+
+- name: Display Brave installation message
+  ansible.builtin.debug:
+    msg: |
+      Brave Browser a été installé et défini comme navigateur par défaut !
+
+      Pour vérifier :
+      xdg-settings get default-web-browser
+
+      Lancez Brave depuis Fuzzel (Mod+D) ou en tapant 'brave'
