@@ -31,7 +31,6 @@
       changed_when: false
       tags: always
 
-  tasks:
     # ===== System Base =====
     - name: Install base packages
       become: true
