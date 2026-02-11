@@ -69,19 +69,23 @@ font_packages:
 # ============================================
 # Development Tools
 # ============================================
-dev_packages:
+# Official repository packages (installed with pacman)
+dev_packages_official:
   - python
   - python-pip
   - nodejs
   - npm
   - rust
-  - jre
-  - jdk
+  - jre-openjdk
+  - jdk-openjdk
   - go
-  - yaak-bin           # API client (Postman alternative)
-  - freeze             # Code screenshot tool
   - htop
   - btop
+
+# AUR packages (installed with yay, without become)
+dev_packages_aur:
+  - yaak-bin           # API client (Postman alternative)
+  - freeze             # Code screenshot tool
 
 # ============================================
 # Navigateurs

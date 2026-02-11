@@ -84,13 +84,20 @@
       tags: ['firefox', 'browser', 'apps']
 
     # ===== Development Tools =====
-    - name: Install development packages
+    - name: Install official development packages
       become: true
-      kewlfft.aur.aur:
-        name: "{{ dev_packages }}"
-        use: yay
+      community.general.pacman:
+        name: "{{ dev_packages_official }}"
         state: present
       tags: ['dev', 'packages']
+
+    - name: Install AUR development packages
+      become: false
+      kewlfft.aur.aur:
+        name: "{{ dev_packages_aur }}"
+        use: yay
+        state: present
+      tags: ['dev', 'packages', 'aur']
 
     # ===== Communication Apps =====
     - name: Install communication applications

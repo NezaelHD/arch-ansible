@@ -17,6 +17,7 @@ niri_packages:
   - swaylock
   - sway-bg
   - swayidle
+  - swaync
   - plasma-polkit-agent
   - nautilus
   - xdg-desktop-portal-gtk

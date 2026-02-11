@@ -1,8 +1,15 @@
 ---
-- name: Install Dev packages
+# Install official packages from Arch repos
+- name: Install official development packages
   become: true
+  community.general.pacman:
+    name: "{{ dev_packages_official }}"
+    state: present
+
+# Install AUR packages without become (yay cannot run as root)
+- name: Install AUR development packages
+  become: false
   kewlfft.aur.aur:
-    name: "{{ dev_packages }}"
+    name: "{{ dev_packages_aur }}"
     use: yay
     state: present
-  changed_when: false
