@@ -32,60 +32,13 @@
   become: false
 
 - name: Create default Niri config if not exists
-  ansible.builtin.copy:
+  ansible.builtin.template:
+    src: config.kdl.j2
     dest: "{{ ansible_env.HOME }}/.config/niri/config.kdl"
-    content: |
-      // Configuration Niri - Personnalisée
-      // Documentation: https://github.com/YaLTeR/niri
-
-      input {
-          keyboard {
-              xkb {
-                  layout "fr"
-              }
-          }
-
-          touchpad {
-              tap
-              natural-scroll
-          }
-      }
-
-      output {
-          scale 1.0
-      }
-
-      layout {
-          gaps 8
-          center-focused-column "never"
-      }
-
-      binds {
-          Mod+Return { spawn "alacritty"; }
-          Mod+D { spawn "fuzzel"; }
-          Mod+Q { close-window; }
-          Mod+H { focus-column-left; }
-          Mod+L { focus-column-right; }
-          Mod+J { focus-window-down; }
-          Mod+K { focus-window-up; }
-          Mod+Shift+H { move-column-left; }
-          Mod+Shift+L { move-column-right; }
-          Mod+Shift+J { move-window-down; }
-          Mod+Shift+K { move-window-up; }
-          Mod+F { maximize-column; }
-          Mod+Shift+F { fullscreen-window; }
-          Mod+Shift+E { quit; }
-
-          // Screenshots
-          Print { spawn "grim" "-g" "$(slurp)" "-" "|" "wl-copy"; }
-      }
-
-      spawn-at-startup "waybar"
-      spawn-at-startup "mako"
-      spawn-at-startup "sway-bg" "-i" "~/.config/niri/wallpaper.jpg" "-m" "fill"
-      spawn-at-startup "swayidle"
     mode: '0644'
-  when: not niri_config_stat.stat.exists
+  when:
+    - not niri_config_stat.stat.exists
+    - niri_create_default_config | default(true)
   become: false
 
 - name: Create Waybar config directory
@@ -93,6 +46,12 @@
     path: "{{ ansible_env.HOME }}/.config/waybar"
     state: directory
     mode: '0755'
+  become: false
+
+- name: Check if Waybar config exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.config/waybar/config"
+  register: waybar_config_stat
   become: false
 
 - name: Create default Waybar config
@@ -127,6 +86,9 @@
           }
       }
     mode: '0644'
+  when:
+    - not waybar_config_stat.stat.exists
+    - niri_create_waybar_config | default(true)
   become: false
 
 - name: Create Fuzzel config directory
@@ -134,6 +96,12 @@
     path: "{{ ansible_env.HOME }}/.config/fuzzel"
     state: directory
     mode: '0755'
+  become: false
+
+- name: Check if Fuzzel config exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.config/fuzzel/fuzzel.ini"
+  register: fuzzel_config_stat
   become: false
 
 - name: Create Fuzzel config
@@ -153,6 +121,9 @@
       selection-match=f38ba8ff
       border=b4befeff
     mode: '0644'
+  when:
+    - not fuzzel_config_stat.stat.exists
+    - niri_create_fuzzel_config | default(true)
   become: false
 
 - name: Create Mako config directory
@@ -160,6 +131,12 @@
     path: "{{ ansible_env.HOME }}/.config/mako"
     state: directory
     mode: '0755'
+  become: false
+
+- name: Check if Mako config exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.config/mako/config"
+  register: mako_config_stat
   become: false
 
 - name: Create Mako config
@@ -175,6 +152,9 @@
       default-timeout=5000
       ignore-timeout=1
     mode: '0644'
+  when:
+    - not mako_config_stat.stat.exists
+    - niri_create_mako_config | default(true)
   become: false
 
 - name: Display Niri installation message

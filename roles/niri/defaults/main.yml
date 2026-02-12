@@ -1,9 +1,6 @@
 ---
 # Niri Wayland Compositor Role - Default Variables
 
-# Enable/disable Niri installation
-niri_enabled: true
-
 # Niri and Wayland packages
 niri_packages:
   - niri
@@ -44,3 +41,4 @@ niri_autostart:
   - mako
   - "sway-bg -i ~/.config/niri/wallpaper.jpg -m fill"
   - swayidle
+  - swaync

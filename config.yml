@@ -125,6 +125,7 @@ other_packages:
   - p7zip
   - radeontop
   - xclip
+  - copyq  # Clipboard manager with history
 
 # ============================================
 # System Services
@@ -155,6 +156,11 @@ install_jetbrains: true
 # PhpStorm and DataGrip will be installed via Toolbox after first launch
 
 # ============================================
+# Zsh Shell Configuration
+# ============================================
+install_zsh: true  # Set to false to skip zsh installation
+
+# ============================================
 # Dotfiles (Optional)
 # ============================================
 install_dotfiles: false  # Set to true and configure below
@@ -163,7 +169,8 @@ dotfiles_repo_version: main
 dotfiles_repo_local_destination: "~/dotfiles"
 dotfiles_files:
   - .bashrc
-  - .zshrc
+  - .zshrc       # Zsh configuration (required for oh-my-zsh + powerlevel10k)
+  - .p10k.zsh    # Powerlevel10k theme configuration
   - .gitconfig
   - .vimrc
   - .tmux.conf

@@ -1,0 +1,110 @@
+---
+# ============================================
+# Zsh Installation and Configuration
+# ============================================
+
+- name: Ensure zsh package is installed
+  become: true
+  community.general.pacman:
+    name: "{{ zsh_package_name }}"
+    state: present
+
+# ============================================
+# Oh-My-Zsh Installation
+# ============================================
+
+- name: Check if oh-my-zsh is already installed
+  ansible.builtin.stat:
+    path: "{{ zsh_ohmyzsh_dir }}"
+  register: ohmyzsh_stat
+  changed_when: false
+
+- name: Install oh-my-zsh
+  ansible.builtin.shell: |
+    set -euo pipefail
+    sh -c "$(curl -fsSL {{ zsh_ohmyzsh_install_script }})" "" --unattended
+  args:
+    executable: /bin/bash
+    creates: "{{ zsh_ohmyzsh_dir }}"
+  environment:
+    RUNZSH: "no"  # Don't launch zsh after installation
+    CHSH: "no"    # Don't change shell yet, we'll do it later
+  when:
+    - zsh_install_ohmyzsh
+    - not ohmyzsh_stat.stat.exists
+  register: ohmyzsh_install
+  changed_when: ohmyzsh_install.rc == 0
+
+# ============================================
+# Powerlevel10k Theme Installation
+# ============================================
+
+- name: Check if powerlevel10k is already installed
+  ansible.builtin.stat:
+    path: "{{ zsh_powerlevel10k_dir }}"
+  register: p10k_stat
+  changed_when: false
+  when: zsh_install_powerlevel10k
+
+- name: Clone powerlevel10k theme repository
+  ansible.builtin.git:
+    repo: "{{ zsh_powerlevel10k_repo }}"
+    dest: "{{ zsh_powerlevel10k_dir }}"
+    depth: 1
+    version: master
+  when:
+    - zsh_install_powerlevel10k
+    - not p10k_stat.stat.exists
+  register: p10k_clone
+
+# ============================================
+# Set Zsh as Default Shell
+# ============================================
+
+- name: Get current user shell
+  ansible.builtin.command: getent passwd {{ zsh_user }}
+  register: user_info
+  changed_when: false
+  failed_when: false
+  when: zsh_set_default_shell
+
+- name: Extract current shell from user info
+  ansible.builtin.set_fact:
+    current_shell: "{{ user_info.stdout.split(':')[-1] }}"
+  when:
+    - zsh_set_default_shell
+    - user_info.rc == 0
+
+- name: Get zsh binary path
+  ansible.builtin.command: which zsh
+  register: zsh_path
+  changed_when: false
+  when: zsh_set_default_shell
+
+- name: Set zsh as default shell for user
+  become: true
+  ansible.builtin.command: chsh -s {{ zsh_path.stdout }} {{ zsh_user }}
+  when:
+    - zsh_set_default_shell
+    - current_shell is defined
+    - current_shell != zsh_path.stdout
+  register: chsh_result
+  changed_when: chsh_result.rc == 0
+
+# ============================================
+# Installation Summary
+# ============================================
+
+- name: Display installation summary
+  ansible.builtin.debug:
+    msg:
+      - "Zsh installation completed successfully!"
+      - "Oh-My-Zsh: {{ 'installed' if ohmyzsh_install.changed else 'already present' }}"
+      - "Powerlevel10k: {{ 'installed' if p10k_clone.changed | default(false) else 'already present' }}"
+      - "Default shell: {{ 'changed to zsh' if chsh_result.changed | default(false) else 'already zsh' }}"
+      - ""
+      - "Next steps:"
+      - "1. Add your .zshrc and .p10k.zsh to your dotfiles repository"
+      - "2. Update config.yml to include these files in dotfiles_files list"
+      - "3. Enable the dotfiles role in config.yml (install_dotfiles: true)"
+      - "4. Log out and log back in for shell change to take effect"

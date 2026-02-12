@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: nezael
+  description: Install and configure zsh with oh-my-zsh and powerlevel10k theme
+  license: MIT
+  min_ansible_version: "2.12"
+
+  platforms:
+    - name: Archlinux
+      versions:
+        - all
+
+  galaxy_tags:
+    - zsh
+    - shell
+    - terminal
+    - oh-my-zsh
+    - powerlevel10k
+    - development
+
+dependencies: []

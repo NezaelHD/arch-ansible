@@ -124,6 +124,21 @@
       tags: ['services']
 
   roles:
+    # ===== Git (from source - optional) =====
+    - role: git
+      become: true
+      tags: [ 'git', 'vcs' ]
+      when: git_install_from_source | default(false)
+
+    # ===== Dotfiles =====
+    - role: dotfiles
+      become: false
+      tags: [ 'dotfiles', 'config' ]
+      when:
+        - install_dotfiles | default(false)
+        - dotfiles_repo is defined
+        - dotfiles_repo != "https://github.com/YOUR_USERNAME/dotfiles.git"
+
     # ===== Niri Wayland Compositor =====
     - role: niri
       become: true
@@ -142,20 +157,11 @@
       tags: ['jetbrains', 'ide', 'dev']
       when: install_jetbrains | default(true)
 
-    # ===== Git (from source - optional) =====
-    - role: git
-      become: true
-      tags: ['git', 'vcs']
-      when: git_install_from_source | default(false)
-
-    # ===== Dotfiles =====
-    - role: dotfiles
+    # ===== Zsh Shell =====
+    - role: zsh
       become: false
-      tags: ['dotfiles', 'config']
-      when:
-        - install_dotfiles | default(false)
-        - dotfiles_repo is defined
-        - dotfiles_repo != "https://github.com/YOUR_USERNAME/dotfiles.git"
+      tags: ['zsh', 'shell', 'terminal']
+      when: install_zsh | default(true)
 
   post_tasks:
     - name: Upgrade all packages
@@ -177,6 +183,7 @@
           - Alacritty (terminal)
           - Waybar (status bar)
           - Fuzzel (launcher: Mod+D)
+          - Zsh + Oh-My-Zsh + Powerlevel10k
 
           🛠️ Development Tools:
           - JetBrains Toolbox (launch to install PhpStorm/DataGrip)

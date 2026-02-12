@@ -1,0 +1,21 @@
+---
+# User-configurable options for zsh role
+
+# Zsh installation
+zsh_package_name: zsh
+
+# Oh-My-Zsh installation
+zsh_install_ohmyzsh: true
+zsh_ohmyzsh_install_script: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+zsh_ohmyzsh_dir: "{{ ansible_env.HOME }}/.oh-my-zsh"
+
+# Powerlevel10k theme
+zsh_install_powerlevel10k: true
+zsh_powerlevel10k_repo: https://github.com/romkatv/powerlevel10k.git
+zsh_powerlevel10k_dir: "{{ zsh_ohmyzsh_dir }}/custom/themes/powerlevel10k"
+
+# Set zsh as default shell
+zsh_set_default_shell: true
+
+# User for whom to configure zsh (defaults to current user)
+zsh_user: "{{ ansible_user_id }}"
