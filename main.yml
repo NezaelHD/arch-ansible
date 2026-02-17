@@ -91,6 +91,24 @@
         state: present
       tags: ['dev', 'packages']
 
+    - name: Create aur_builder user
+      become: true
+      user:
+        name: aur_builder
+        create_home: yes
+        group: wheel
+      tags: ['dev', 'packages', 'aur']
+
+    - name: Allow aur_builder to run pacman without password
+      become: true
+      lineinfile:
+        path: /etc/sudoers.d/11-install-aur_builder
+        line: 'aur_builder ALL=(ALL) NOPASSWD: /usr/bin/pacman'
+        create: yes
+        mode: '0440"
+        validate: 'visudo -cf %s'
+      tags: ['dev', 'packages', 'aur']
+
     - name: Install AUR development packages
       become: false
       kewlfft.aur.aur:
