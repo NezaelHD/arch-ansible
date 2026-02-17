@@ -25,7 +25,7 @@ install_niri: true
 # ============================================
 # Options: "amd", "nvidia", "none"
 # Set to "none" if using Intel integrated graphics or no dedicated GPU
-gpu_type: "amd"  # Change to "nvidia" for NVIDIA cards
+gpu_type: "none"  # Change to "nvidia" for NVIDIA cards
 
 # Legacy variables (deprecated, use gpu_type instead)
 install_amd_gpu: "{{ gpu_type == 'amd' }}"
@@ -76,8 +76,6 @@ dev_packages_official:
   - nodejs
   - npm
   - rust
-  - jre-openjdk
-  - jdk-openjdk
   - go
   - htop
   - btop
@@ -172,8 +170,23 @@ dotfiles_files:
   - .zshrc       # Zsh configuration (required for oh-my-zsh + powerlevel10k)
   - .p10k.zsh    # Powerlevel10k theme configuration
   - .gitconfig
-  - .vimrc
-  - .tmux.conf
+  - .config/niri/config.kdl
+  - .config/waybar/
+  - .config/sway/config
+  - .config/fuzzel/fuzzel.ini
+  - .config/swaylock/config
+  - .config/swaylock/swaylock.sh
+  - .config/swaylock/wallpaper.jpg
+  - .config/swaync/config.json
+  - .config/swaync/configSchema.json
+  - .config/swaync/style.css
+  - .config/waybar/calendar.sh
+  - .config/waybar/config
+  - .config/waybar/powerprofiles.sh
+  - .config/waybar/style.css
+  - .config/waybar/toggle_powerprofiles.sh
+  - .oh-my-zsh/custom/docker-aliases.zsh
+  - .oh-my-zsh/custom/git-aliases.zsh
 
 # ============================================
 # Niri Configuration
