@@ -8,6 +8,7 @@
       - wayland
       - wayland-protocols
       - xorg-xwayland  # Pour compatibilité apps X11
+      - xwayland-satellite
     state: present
 
 - name: Install Niri compositor and environment
