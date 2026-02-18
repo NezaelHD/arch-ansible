@@ -35,10 +35,20 @@ niri_keyboard_layout: "fr"
 niri_gaps: 8
 niri_mod_key: "Mod"  # Super/Windows key
 
+# GDM Display Manager
+niri_gdm_enabled: true
+niri_gdm_autologin: true
+niri_gdm_autologin_user: "{{ ansible_user_id }}"
+
+# Lock screen configuration
+niri_swaylock_on_login: true       # Lancer swaylock au démarrage de session (avec auto-login GDM)
+niri_swayidle_enabled: true        # Activer swayidle pour le verrouillage automatique
+niri_swayidle_idle_timeout: 300    # Verrouiller après 5 minutes d'inactivité
+niri_swayidle_screen_off_timeout: 600  # Éteindre l'écran après 10 minutes
+
 # Autostart applications
 niri_autostart:
   - waybar
   - mako
   - "sway-bg -i ~/.config/niri/wallpaper.jpg -m fill"
-  - swayidle
   - swaync

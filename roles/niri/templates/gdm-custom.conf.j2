@@ -1,0 +1,20 @@
+# GDM Configuration - managed by Ansible
+# Documentation: /usr/share/doc/gdm/gdm.conf
+
+[daemon]
+{% if niri_gdm_autologin | default(false) %}
+AutomaticLoginEnable=True
+AutomaticLogin={{ niri_gdm_autologin_user }}
+{% else %}
+AutomaticLoginEnable=False
+{% endif %}
+WaylandEnable=true
+
+[security]
+
+[xdmcp]
+
+[chooser]
+
+[debug]
+# Enable=true

@@ -1,0 +1,7 @@
+---
+- name: restart gdm
+  become: true
+  ansible.builtin.systemd:
+    name: gdm
+    state: restarted
+  failed_when: false  # Ne pas échouer si GDM n'est pas encore démarré

@@ -249,9 +249,20 @@ layout {
 // Note that running niri as a session supports xdg-desktop-autostart,
 // which may be more convenient to use.
 // See the binds section below for more spawn examples.
+
+{% if niri_swaylock_on_login | default(false) %}
+// Verrouillage écran au démarrage de session (fonctionne avec auto-login GDM)
+spawn-at-startup "swaylock" "-f"
+{% endif %}
+
+{% if niri_swayidle_enabled | default(false) %}
+// swayidle : verrouillage sur inactivité, extinction écran, et avant mise en veille
+spawn-sh-at-startup "swayidle -w timeout {{ niri_swayidle_idle_timeout }} 'swaylock -f' timeout {{ niri_swayidle_screen_off_timeout }} 'niri msg action power-off-monitors' before-sleep 'swaylock -f' lock 'swaylock -f'"
+{% endif %}
+
 {% if niri_autostart is defined and niri_autostart | length > 0 %}
 {% for app in niri_autostart %}
-spawn-at-startup "{{ app }}"
+spawn-sh-at-startup "{{ app }}"
 {% endfor %}
 {% endif %}
 

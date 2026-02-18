@@ -59,12 +59,15 @@ font_packages:
   - ttf-ubuntu-font-family
   - noto-fonts
   - noto-fonts-emoji
+  - noto-fonts-extra    # Inclut Noto Sans Symbols2 (🎜 et autres symboles unicode étendus)
   - ttf-dejavu
   - ttf-roboto
   - adobe-source-han-sans-otc-fonts
   - ttf-jetbrains-mono  # Code font with ligatures
   - ttf-fira-code       # Popular code font
   - ttf-hack            # Terminal font
+  - otf-font-awesome    # Icônes UI : ⏻  volume, réseau, batterie... (waybar/swaync)
+  - ttf-nerd-fonts-symbols-mono  # Glyphes Nerd Fonts PUA pour waybar/swaync (via chaotic-AUR)
 
 # ============================================
 # Development Tools
@@ -193,6 +196,15 @@ dotfiles_files:
 # ============================================
 niri_keyboard_layout: "fr"
 niri_gaps: 8
+
+# GDM + démarrage automatique
+# niri_gdm_enabled: true           # Installer et activer GDM
+# niri_gdm_autologin: true         # Connexion automatique sans écran GDM
+# niri_gdm_autologin_user: "ton_utilisateur"  # Utilisateur pour l'auto-login (défaut: utilisateur courant)
+# niri_swaylock_on_login: true     # Afficher swaylock au démarrage de session
+# niri_swayidle_enabled: true      # Activer le verrouillage automatique
+# niri_swayidle_idle_timeout: 300  # Verrouiller après N secondes d'inactivité (défaut: 5min)
+# niri_swayidle_screen_off_timeout: 600  # Éteindre l'écran après N secondes (défaut: 10min)
 
 # ============================================
 # Default Browser

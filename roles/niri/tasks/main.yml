@@ -11,6 +11,13 @@
       - xwayland-satellite
     state: present
 
+- name: Install GDM display manager
+  become: true
+  community.general.pacman:
+    name: gdm
+    state: present
+  when: niri_gdm_enabled | default(true)
+
 - name: Install Niri compositor and environment
   become: true
   kewlfft.aur.aur:
@@ -158,19 +165,71 @@
     - niri_create_mako_config | default(true)
   become: false
 
+- name: Configure GDM
+  become: true
+  ansible.builtin.template:
+    src: gdm-custom.conf.j2
+    dest: /etc/gdm/custom.conf
+    owner: root
+    group: root
+    mode: '0644'
+  when: niri_gdm_enabled | default(true)
+  notify: restart gdm
+
+- name: Ensure AccountsService users directory exists
+  become: true
+  ansible.builtin.file:
+    path: /var/lib/AccountsService/users
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  when:
+    - niri_gdm_enabled | default(true)
+    - niri_gdm_autologin | default(true)
+
+- name: Configure niri as default session for auto-login user
+  become: true
+  ansible.builtin.copy:
+    dest: "/var/lib/AccountsService/users/{{ niri_gdm_autologin_user }}"
+    content: |
+      [User]
+      Session=niri
+      XSession=niri
+    owner: root
+    group: root
+    mode: '0644'
+  when:
+    - niri_gdm_enabled | default(true)
+    - niri_gdm_autologin | default(true)
+
+- name: Enable GDM service
+  become: true
+  ansible.builtin.systemd:
+    name: gdm
+    enabled: true
+  when: niri_gdm_enabled | default(true)
+
 - name: Display Niri installation message
   ansible.builtin.debug:
     msg: |
       Niri a été installé avec succès !
 
-      Pour démarrer Niri :
-      1. Depuis un TTY : tapez 'niri'
-      2. Via un display manager : sélectionnez 'Niri' dans la liste des sessions
+      Démarrage automatique :
+      - GDM est activé et configuré avec auto-login
+      - Au démarrage, swaylock s'affiche à la place de l'écran de login GDM
+      - Entrez votre mot de passe pour accéder à la session Niri
 
-      Raccourcis clavier par défaut :
+      Verrouillage automatique (swayidle) :
+      - Verrouillage après {{ niri_swayidle_idle_timeout }}s d'inactivité
+      - Extinction écran après {{ niri_swayidle_screen_off_timeout }}s
+      - Verrouillage avant mise en veille
+
+      Raccourcis clavier :
       - Mod+Return : Terminal (Alacritty)
       - Mod+D : Lanceur d'applications (Fuzzel)
       - Mod+Q : Fermer fenêtre
+      - Super+Alt+L : Verrouiller l'écran
       - Print : Screenshot
 
       Configuration : ~/.config/niri/config.kdl
