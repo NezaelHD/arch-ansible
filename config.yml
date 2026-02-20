@@ -164,7 +164,7 @@ install_zsh: true  # Set to false to skip zsh installation
 # ============================================
 # Dotfiles (Optional)
 # ============================================
-install_dotfiles: false  # Set to true and configure below
+install_dotfiles: true  # Set to true and configure below
 dotfiles_repo: "https://github.com/YOUR_USERNAME/dotfiles.git"
 dotfiles_repo_version: main
 dotfiles_repo_local_destination: "~/dotfiles"
